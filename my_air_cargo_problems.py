@@ -278,9 +278,9 @@ def air_cargo_p2() -> AirCargoProblem:
 
 def air_cargo_p3() -> AirCargoProblem:
     # TODO implement Problem 3 definition
-    cargos = ['C1', 'C2','C3']
-    planes = ['P1', 'P2','P3']
-    airports = ['JFK', 'SFO','ATL']
+    cargos = ['C1', 'C2','C3','C4']
+    planes = ['P1', 'P2']
+    airports = ['JFK', 'SFO','ATL','ORD']
     pos = [expr('At(C1, SFO)'),
            expr('At(C2, JFK)'),
            expr('At(C3, ATL)'),
