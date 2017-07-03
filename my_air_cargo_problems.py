@@ -169,7 +169,6 @@ class AirCargoProblem(Problem):
 
     def goal_test(self, state: str) -> bool:
         """ Test the state to see if goal is reached
-
         :param state: str representing state
         :return: bool
         """
@@ -205,7 +204,12 @@ class AirCargoProblem(Problem):
         executed.
         """
         # TODO implement (see Russell-Norvig Ed-3 10.2.3  or Russell-Norvig Ed-2 11.2)
+        goal_literals  = self.goal
         count = 0
+        for goal_literal in goal_literals:
+            position = self.state_map.index(goal_literal)
+            if node.state[position] == 'F':
+                count = count +1
         return count
 
 
