@@ -310,6 +310,22 @@ class PlanningGraph():
         #   set iff all prerequisite literals for the action hold in S0.  This can be accomplished by testing
         #   to see if a proposed PgNode_a has prenodes that are a subset of the previous S level.  Once an
         #   action node is added, it MUST be connected to the S node instances in the appropriate s_level set.
+        self.a_levels.append(set())
+        for action in self.all_actions:
+            for status_node in self.s_levels[level]:
+                if status_node.is_pos:
+                    for precondition_pos in action.precond_pos:
+                        if status_node.symbol == precondition_pos: 
+                            action_node = PgNode_a(action)
+                            status_node.children.add(action_node)
+                            self.a_levels[level].add(action_node)
+                else:
+                    for precondition_neg in action.precond_neg:
+                        if status_node.symbol == precondition_pos: 
+                            action_node = PgNode_a(action)
+                            status_node.children.add(action_node)
+                            self.a_levels[level].add(action_node)
+
 
     def add_literal_level(self, level):
         """ add an S (literal) level to the Planning Graph
@@ -328,6 +344,11 @@ class PlanningGraph():
         #   may be "added" to the set without fear of duplication.  However, it is important to then correctly create and connect
         #   all of the new S nodes as children of all the A nodes that could produce them, and likewise add the A nodes to the
         #   parent sets of the S nodes
+        self.s_levels.append(set())
+        for action in self.a_levels[level-1]:
+            for effect_node in action.effnodes:
+                effect_node.parents.add(action)
+                self.s_levels[level].add(effect_node)
 
     def update_a_mutex(self, nodeset):
         """ Determine and update sibling mutual exclusion for A-level nodes
@@ -386,7 +407,9 @@ class PlanningGraph():
         :return: bool
         """
         # TODO test for Inconsistent Effects between nodes
-        return False
+        return len(set(node_a1.action.effect_add).intersection(node_a2.action.effect_rem)) > 0 or \
+                len(set(node_a1.action.effect_rem).intersection(node_a2.action.effect_add))>0
+                   
 
     def interference_mutex(self, node_a1: PgNode_a, node_a2: PgNode_a) -> bool:
         """
@@ -403,6 +426,22 @@ class PlanningGraph():
         :return: bool
         """
         # TODO test for Interference between nodes
+        for effect_add in node_a1.action.effect_add:
+            for precondition_neg in node_a2.action.precond_neg:
+                if effect_add == precondition_neg:
+                    return True
+        for effect_rem in node_a1.action.effect_rem:
+            for precondition_pos in node_a2.action.precond_pos:
+                if effect_rem == precondition_pos:
+                    return True
+        for effect_add in node_a2.action.effect_add:
+            for precondition_neg in node_a1.action.precond_neg:
+                if effect_add == precondition_neg:
+                    return True
+        for effect_rem in node_a2.action.effect_rem:
+            for precondition_pos in node_a1.action.precond_pos:
+                if effect_rem == precondition_pos:
+                    return True
         return False
 
     def competing_needs_mutex(self, node_a1: PgNode_a, node_a2: PgNode_a) -> bool:
@@ -415,8 +454,11 @@ class PlanningGraph():
         :param node_a2: PgNode_a
         :return: bool
         """
-
         # TODO test for Competing Needs between nodes
+        for parent1 in node_a1.parents:
+            for parent2 in node_a2.parents:
+                if parent1.is_mutex(parent2):
+                    return True
         return False
 
     def update_s_mutex(self, nodeset: set):
@@ -452,7 +494,8 @@ class PlanningGraph():
         :return: bool
         """
         # TODO test for negation between nodes
-        return False
+        return node_s1.symbol == node_s2.symbol and node_s1.is_pos is not node_s2.is_pos
+       
 
     def inconsistent_support_mutex(self, node_s1: PgNode_s, node_s2: PgNode_s):
         """
@@ -465,12 +508,18 @@ class PlanningGraph():
 
         HINT: The PgNode.is_mutex method can be used to test whether two nodes
         are mutually exclusive.
-
         :param node_s1: PgNode_s
         :param node_s2: PgNode_s
         :return: bool
         """
         # TODO test for Inconsistent Support between nodes
+        for action1 in node_s1.parents:
+            for action2 in node_s2.parents:
+                if action1.is_mutex(action2):
+                    if node_s1 in action1.children and node_s2 in action1.children or node_s1 in action2.children and node_s2 in action2.children:
+                        return False
+                    else:
+                        return True
         return False
 
     def h_levelsum(self) -> int:
@@ -479,6 +528,19 @@ class PlanningGraph():
         :return: int
         """
         level_sum = 0
-        # TODO implement
-        # for each goal in the problem, determine the level cost, then add them together
-        return level_sum
+        visitedStates = set()
+        for goal in self.problem.goal:
+            level_index = -1 
+            for states in self.s_levels:
+                level_index += 1
+                for state in states:
+                    if goal == state.symbol and state not in visitedStates:
+                        level_sum += level_index
+                        visitedStates.add(state)
+                        break
+        return level_sum -1
+
+
+
+
+       
