@@ -7,6 +7,10 @@ from aimacode.search import (breadth_first_search, astar_search,
     recursive_best_first_search)
 from my_air_cargo_problems import air_cargo_p1, air_cargo_p2, air_cargo_p3
 
+AUTOMATIC_EXECUTION_MSG = """
+Step through all problems and all algorithms
+"""
+
 PROBLEM_CHOICE_MSG = """
 Select from the following list of air cargo problems. You may choose more than
 one by entering multiple selections separated by spaces.
@@ -84,6 +88,13 @@ def manual():
                                                " ".join(p_choices),
                                                " ".join(s_choices)))
 
+def automatic():
+
+    print(AUTOMATIC_EXECUTION_MSG)
+
+    main(range(1,3), range(1,10))
+
+    print("\nDone!")
 
 def main(p_choices, s_choices):
 
@@ -110,7 +121,7 @@ if __name__=="__main__":
     parser = argparse.ArgumentParser(description="Solve air cargo planning problems " + 
         "using a variety of state space search methods including uninformed, greedy, " +
         "and informed heuristic search.")
-    parser.add_argument('-m', '--manual', action="store_true",
+    parser.add_argument('-m', '--manual', action="store_false",
                         help="Interactively select the problems and searches to run.")
     parser.add_argument('-p', '--problems', nargs="+", choices=range(1, len(PROBLEMS)+1), type=int, metavar='',
                         help="Specify the indices of the problems to solve as a list of space separated values. Choose from: {!s}".format(list(range(1, len(PROBLEMS)+1))))
@@ -120,6 +131,8 @@ if __name__=="__main__":
 
     if args.manual:
         manual()
+    elif not args.manual:
+        automatic()
     elif args.problems and args.searches:
         main(list(sorted(set(args.problems))), list(sorted(set((args.searches)))))
     else:
