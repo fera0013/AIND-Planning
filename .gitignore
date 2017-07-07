@@ -5,3 +5,5 @@
 ~$search_review.docx
 *.tmp
 machineLearningInPlanningTable.PNG
+*.zip
+cargo_planning-result-73850.json
