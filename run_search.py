@@ -82,19 +82,13 @@ def manual():
 
     main(p_choices, s_choices)
 
-    print("\nYou can run this selection again automatically from the command " +
-          "line\nwith the following command:")
-    print("\n  python {} -p {} -s {}\n".format(__file__,
-                                               " ".join(p_choices),
-                                               " ".join(s_choices)))
+#def automatic():
 
-def automatic():
+#    print(AUTOMATIC_EXECUTION_MSG)
 
-    print(AUTOMATIC_EXECUTION_MSG)
+#    main([2], range(1,10))
 
-    main(range(1,3), range(1,10))
-
-    print("\nDone!")
+#    print("\nDone!")
 
 def main(p_choices, s_choices):
 
@@ -121,7 +115,7 @@ if __name__=="__main__":
     parser = argparse.ArgumentParser(description="Solve air cargo planning problems " + 
         "using a variety of state space search methods including uninformed, greedy, " +
         "and informed heuristic search.")
-    parser.add_argument('-m', '--manual', action="store_false",
+    parser.add_argument('-m', '--manual', action="store_true",
                         help="Interactively select the problems and searches to run.")
     parser.add_argument('-p', '--problems', nargs="+", choices=range(1, len(PROBLEMS)+1), type=int, metavar='',
                         help="Specify the indices of the problems to solve as a list of space separated values. Choose from: {!s}".format(list(range(1, len(PROBLEMS)+1))))
@@ -131,8 +125,8 @@ if __name__=="__main__":
 
     if args.manual:
         manual()
-    elif not args.manual:
-        automatic()
+    #elif not args.manual:
+    #    automatic()
     elif args.problems and args.searches:
         main(list(sorted(set(args.problems))), list(sorted(set((args.searches)))))
     else:
