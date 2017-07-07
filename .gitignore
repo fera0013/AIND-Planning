@@ -1,3 +1,7 @@
 *.suo
 *.sln
 *.pyproj
+*.pdf
+~$search_review.docx
+*.tmp
+machineLearningInPlanningTable.PNG
