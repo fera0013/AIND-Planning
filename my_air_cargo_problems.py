@@ -126,19 +126,9 @@ class AirCargoProblem(Problem):
         :return: list of Action objects
         """
         # TODO implement
-        possible_actions = []
         kb = PropKB()
         kb.tell(decode_state(state, self.state_map).pos_sentence())
-        for action in self.actions_list:
-            is_possible = True
-            for clause in action.precond_pos:
-                if clause not in kb.clauses:
-                    is_possible = False
-            for clause in action.precond_neg:
-                if clause in kb.clauses:
-                    is_possible = False
-            if is_possible:
-                possible_actions.append(action)
+        possible_actions = [ a for a in self.actions_list if a.check_precond(kb, a.args) ]
         return possible_actions
 
     def result(self, state: str, action: Action):
@@ -194,7 +184,7 @@ class AirCargoProblem(Problem):
         # requires implemented PlanningGraph class
         pg = PlanningGraph(self, node.state)
         pg_levelsum = pg.h_levelsum()
-        return pg_levelsum
+        #return pg_levelsum
 
     @lru_cache(maxsize=8192)
     def h_ignore_preconditions(self, node: Node):
